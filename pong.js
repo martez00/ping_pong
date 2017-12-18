@@ -195,12 +195,6 @@ class KeyListener{
     isPressed(key){
         return this.pressedKeys[key] ? true : false;
     }
-    addKeyPressListener(keycode, callback){
-        document.addEventListener("keypress", function(e) {
-            if (e.keyCode == keyCode)
-                callback(e);
-        });
-    }
 }
 
 //AbstractFactory
