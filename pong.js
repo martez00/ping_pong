@@ -35,7 +35,7 @@ class Game {
         this.width = canvas.width;
         this.height = canvas.height;
         this.context = canvas.getContext("2d");
-        this.context.fillStyle = "white";
+        this.context.fillStyle = "yellow";
         this.keys = new KeyListener();
         this.paddle1 = new Paddle(5, 0);
         this.paddle1.y = this.height/2 - this.paddle1.height/2;
@@ -46,8 +46,8 @@ class Game {
         this.ball = new Ball();
         this.ball.x = this.width/2;
         this.ball.y = this.height/2;
-        this.ball.vy = Math.floor(Math.random()*12 - 6);
-        this.ball.vx = 7 - Math.abs(this.ball.vy);
+        this.ball.directionY = Math.floor(Math.random()*12 - 6);
+        this.ball.directionX = 7 - Math.abs(this.ball.directionY);
         this.abstractdraw = new AbstractDraw();
         this.drawing = new Draw();
         this.DrawingBallOrPaddle = new DrawBallOrPadle();
@@ -71,49 +71,48 @@ class Game {
         this.display1.value = this.paddle1.score;
         this.display2.value = this.paddle2.score;
 
-        if (this.keys.isPressed(83)) { // DOWN
+        if (this.keys.isPressed(83)) {
             this.paddle1.y = Math.min(this.height - this.paddle1.height, this.paddle1.y + 4);
-        } else if (this.keys.isPressed(87)) { // UP
+        } else if (this.keys.isPressed(87)) {
             this.paddle1.y = Math.max(0, this.paddle1.y - 4);
         }
 
-        if (this.keys.isPressed(40)) { // DOWN
+        if (this.keys.isPressed(40)) {
             this.paddle2.y = Math.min(this.height - this.paddle2.height, this.paddle2.y + 4);
-        } else if (this.keys.isPressed(38)) { // UP
+        } else if (this.keys.isPressed(38)) {
             this.paddle2.y = Math.max(0, this.paddle2.y - 4);
         }
 
-        if (this.ball.vx > 0) {
+        if (this.ball.directionX > 0) {
             if (this.paddle2.x <= this.ball.x + this.ball.width &&
-                this.paddle2.x > this.ball.x - this.ball.vx + this.ball.width) {
+                this.paddle2.x > this.ball.x - this.ball.directionX + this.ball.width) {
                 var collisionDiff = this.ball.x + this.ball.width - this.paddle2.x;
-                var k = collisionDiff/this.ball.vx;
-                var y = this.ball.vy*k + (this.ball.y - this.ball.vy);
+                var k = collisionDiff/this.ball.directionX;
+                var y = this.ball.directionY*k + (this.ball.y - this.ball.directionY);
                 if (y >= this.paddle2.y && y + this.ball.height <= this.paddle2.y + this.paddle2.height) {
-                    // collides with right paddle
+                    // susijungia su desiniu
                     this.ball.x = this.paddle2.x - this.ball.width;
-                    this.ball.y = Math.floor(this.ball.y - this.ball.vy + this.ball.vy*k);
-                    this.ball.vx = -this.ball.vx;
+                    this.ball.y = Math.floor(this.ball.y - this.ball.directionY + this.ball.directionY*k);
+                    this.ball.directionX = -this.ball.directionX;
                 }
             }
         } else {
             if (this.paddle1.x + this.paddle1.width >= this.ball.x) {
                 var collisionDiff = this.paddle1.x + this.paddle1.width - this.ball.x;
-                var k = collisionDiff/-this.ball.vx;
-                var y = this.ball.vy*k + (this.ball.y - this.ball.vy);
+                var k = collisionDiff/-this.ball.directionX;
+                var y = this.ball.directionY*k + (this.ball.y - this.ball.directionY);
                 if (y >= this.paddle1.y && y + this.ball.height <= this.paddle1.y + this.paddle1.height) {
-                    // collides with the left paddle
+                    //susijungia su kairiu
                     this.ball.x = this.paddle1.x + this.paddle1.width;
-                    this.ball.y = Math.floor(this.ball.y - this.ball.vy + this.ball.vy*k);
-                    this.ball.vx = -this.ball.vx;
+                    this.ball.y = Math.floor(this.ball.y - this.ball.directionY + this.ball.directionY*k);
+                    this.ball.directionX = -this.ball.directionX;
                 }
             }
         }
 
-        // Top and bottom collision
-        if ((this.ball.vy < 0 && this.ball.y < 0) ||
-            (this.ball.vy > 0 && this.ball.y + this.ball.height > this.height)) {
-            this.ball.vy = -this.ball.vy;
+        if ((this.ball.directionY < 0 && this.ball.y < 0) ||
+            (this.ball.directionY > 0 && this.ball.y + this.ball.height > this.height)) {
+            this.ball.directionY = -this.ball.directionY;
         }
         if (this.ball.x >= this.width)
             this.score(this.paddle1);
@@ -128,11 +127,12 @@ class Game {
         this.ball.x = this.width/2;
         this.ball.y = player_scores.y + player_scores.height/2;
 
-        // set ball velocity
-        this.ball.vy = Math.floor(Math.random()*12 - 6);
-        this.ball.vx = 7 - Math.abs(this.ball.vy);
-        if (player_scores == 1)
-            this.ball.vx *= -1;
+        this.ball.directionY = Math.floor(Math.random()*12 - 6);
+        this.ball.directionX = (7 - Math.abs(this.ball.directionY));
+
+        if (player_scores.x==5)
+            this.ball.directionX*=-1;
+
     }
 }
 
@@ -154,14 +154,14 @@ class Ball{
     constructor() {
         this.x = 0;
         this.y = 0;
-        this.vx = 0;
-        this.vy = 0;
+        this.directionX = 0;
+        this.directionY = 0;
         this.width = 4;
         this.height = 4;
     }
     update(){
-        this.x += this.vx;
-        this.y += this.vy;
+        this.x += this.directionX;
+        this.y += this.directionY;
     }
 }
 
@@ -237,4 +237,4 @@ class DrawDisplay extends AbstractDraw {
     }
 }
 
-var masina = new GameMechanism();
+var masina = new GameMechanismSpeedX2();
